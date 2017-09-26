@@ -19,7 +19,7 @@ NCD has been designing and manufacturing computer control products since 1995.  
 >communicate to the chip. You can optionally pass in a kwarg to the object at instantiation that will override the default
 >configuration options.
 
-### Public accessible methods
+### Publicly accessible methods
 ```cpp
 take_reading()
 ```
