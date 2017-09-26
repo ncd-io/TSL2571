@@ -49,7 +49,7 @@ Sensor.takeReading();
 ```
 
 >Take readings at the appropriate interval
-``cpp
+```cpp
 Sensor.loop();
 ```
 
