@@ -18,4 +18,4 @@ tsl2571 = tsl2571.TSL2571(bus, kwargs)
 while True :
     print tsl2571.take_reading()
     #keep in mind the chip can only take readings so many times a second. The actual rate is dependant on your configuration properties.
-    #Running a loop in this way for an actual project will result in duplicate data being returned until the chip has taken th
+    #Running a loop in this way for an actual project will result in duplicate data being returned until the chip has taken new readings and set them in the register.
