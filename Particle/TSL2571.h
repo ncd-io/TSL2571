@@ -14,24 +14,48 @@
 #define TSL2571_ENABLE_REGISTER 0x00
 #define TSL2571_ALS_INTERRUPT_ENABLE 0x10
 #define TSL2571_WAIT_ENABLE 0x08
+#define TSL2571_WAIT_DISABLE 0x08
 #define TSL2571_ALS_ENABLE 0x02
 #define TSL2571_POWER_ON 0x01
 
 //ALS Integration Timing Register constants
 
 #define TSL2571_ATIME_REGISTER 0x01
-#define TSL2571_ATIME_1 0xFF        //2.47 ms
-#define TSL2571_ATIME_10 0xF6       //27.2 ms
-#define TSL2571_ATIME_37 0xDB       //101 ms
-#define TSL2571_ATIME_64 0xC0       //174 ms
-#define TSL2571_ATIME_256 0x00      //696 ms
 
 //Wait Time Register Constants
 
 #define TSL2571_WTIME_REGISTER 0x03
-#define TSL2571_WTIME_1 0xFF        //2.72 ms (.032 sec if WLONG)
-#define TSL2571_WTIME_74 0xB6       //201 ms (2.4 sec if WLONG)
-#define TSL2571_WTIME_256 0x00      //696 ms (8.3 sec if WLONG)
+
+//Configuration Register
+
+#define TSL2571_CONFIG_REGISTER 0x0D
+#define TSL2571_WLONG_ENABLE 0x02
+#define TSL2571_WLONG_DISABLE 0x00
+
+
+//Control Register
+
+#define TSL2571_CONTROL_REGISTER 0x0F
+#define TSL2571_GAIN_1 0x20
+#define TSL2571_GAIN_8 0x21
+#define TSL2571_GAIN_16 0x22
+#define TSL2571_GAIN_120 0x23
+
+//Status Register
+
+#define TSL2571_STATUS_REGISTER 0x13
+#define TSL2571_STATUS_ALS_INTERRUPT 0x10
+#define TSL2571_STATUS_ALS_VALID 0x01
+
+//ADC Channel Data Registers
+
+#define TSL2571_DATA_0_LSB 0x14
+#define TSL2571_DATA_0_MSB 0x15
+#define TSL2571_DATA_1_LSB 0x16
+#define TSL2571_DATA_1_MSB 0x17
+
+
+//These registers are unused in this library, they are only listed for completeness
 
 //ALS Interrupt Threshold Registers
 
@@ -60,32 +84,6 @@
 #define TSL2571_INTERRUPT_55 0x0E
 #define TSL2571_INTERRUPT_60 0x0F
 
-//Configuration Register
-
-#define TSL2571_CONFIG_REGISTER 0x0D
-#define TSL2571_CONFIG_WLONG 0x02
-
-//Control Register
-
-#define TSL2571_CONTROL_REGISTER 0x0F
-#define TSL2571_GAIN_1 0x20
-#define TSL2571_GAIN_8 0x21
-#define TSL2571_GAIN_16 0x22
-#define TSL2571_GAIN_120 0x23
-
-//Status Register
-
-#define TSL2571_STATUS_REGISTER 0x13
-#define TSL2571_STATUS_ALS_INTERRUPT 0x10
-#define TSL2571_STATUS_ALS_VALID 0x01
-
-//ADC Channel Data Registers
-
-#define TSL2571_DATA_0_LSB 0x14
-#define TSL2571_DATA_0_MSB 0x15
-#define TSL2571_DATA_1_LSB 0x16
-#define TSL2571_DATA_1_MSB 0x17
-
 
 class TSL2571{
 public:
@@ -94,25 +92,27 @@ public:
     
     //Glass Attenuation (used for light pipes and glass filters)
     float ga=1;
-    int init_options = (TSL2571_WAIT_ENABLE | TSL2571_ALS_ENABLE | TSL2571_POWER_ON);
-    int atime = TSL2571_ATIME_1;
-    int wtime = TSL2571_WTIME_1;
+    
+    int wait_enabled = TSL2571_WAIT_ENABLE;
+    int wtime = 1;
+    int wlong = TSL2571_WLONG_DISABLE;
+    
+    int atime = 1;
     int gain = TSL2571_GAIN_1;
-    
-    int getGain();
-    float getAtime();
-    
-    void sendCommand(int reg, int cmd);
-    void readBytes(int reg, int *bytes, int length);
     
     void init();
     void takeReading();
     void loop();
     
-    int last_checked=0;
-    int loop_delay;
-    
     double lux=0;
-    
-    
+private:
+    double CPL;
+    int getGain();
+    float getAtime();
+    float getWtime();
+    int loop_delay;
+    int last_checked=0;
+    void begin();
+    void sendCommand(int reg, int cmd);
+    void readBytes(int reg, int *bytes, int length);
 };
