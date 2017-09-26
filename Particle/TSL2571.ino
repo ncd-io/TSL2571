@@ -8,7 +8,6 @@ void setup(){
     Particle.variable("lux", sensor.lux);
 }
 
-int last_checked = 0;
 void loop(){
     sensor.loop();
 }
