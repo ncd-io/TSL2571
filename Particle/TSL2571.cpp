@@ -2,26 +2,28 @@
 #include "Particle.h"
 
 void TSL2571::init(){
-    if (!Wire.isEnabled()) {
-        Wire.begin();
-    }
-    loop_delay = wtime+atime;
-    sendCommand(TSL2571_ENABLE_REGISTER, init_options);
-    sendCommand(TSL2571_ATIME_REGISTER, atime);
-    sendCommand(TSL2571_WTIME_REGISTER, wtime);
+    begin();
+    
+    sendCommand(TSL2571_ENABLE_REGISTER, TSL2571_ALS_ENABLE | TSL2571_POWER_ON | wait_enabled);
+    sendCommand(TSL2571_ATIME_REGISTER, 256 - atime);
+    sendCommand(TSL2571_WTIME_REGISTER, 256 - wtime);
     sendCommand(TSL2571_CONTROL_REGISTER, gain);
+    sendCommand(TSL2571_CONFIG_REGISTER, wlong);
+    
+    int catime = getAtime();
+    
+    CPL = (catime * getGain()) / (ga * 53);
+    
+    loop_delay = getWtime()+catime;
 }
 
 void TSL2571::takeReading(){
-    
     int data[4];
     
     readBytes(TSL2571_DATA_0_LSB, data, 4);
     
     int c0 = data[0] + (data[1] << 8);
     int c1 = data[2] + (data[3] << 8);
-    
-    float CPL = (getAtime() * getGain()) / (ga * 53);
     
     float lux1 = (c0 - 2 * c1) / CPL;
     float lux2 = (0.6 * c0 - c1) / CPL;
@@ -38,13 +40,24 @@ void TSL2571::loop(){
 }
 
 int TSL2571::getGain(){
-    int gain_index = (gain & 0x1f);
     int gains[4] = {1,8,16,120};
-    return gains[gain_index];
+    return gains[(gain & 0x1f)];
 }
 
 float TSL2571::getAtime(){
-    return (float)(256-atime) * 2.72;
+    float ttime = atime * 2.72;
+    return ttime;
+}
+float TSL2571::getWtime(){
+    float ttime = wtime * 2.72;
+    if(wlong == TSL2571_WLONG_ENABLE) ttime *= 12;
+    return ttime;
+}
+
+void TSL2571::begin(){
+    if (!Wire.isEnabled()) {
+        Wire.begin();
+    }
 }
 
 void TSL2571::sendCommand(int reg, int cmd){
