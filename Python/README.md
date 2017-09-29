@@ -19,6 +19,11 @@ NCD has been designing and manufacturing computer control products since 1995.  
 >communicate to the chip. You can optionally pass in a kwarg to the object at instantiation that will override the default
 >configuration options.
 
+>There are many configuration options for the chip and they can be passed to the object during instantiation to alter the readings and make them more accurate.
+>We recommend reference the TSL2571 datasheet for the values to use in your particular application.
+
+>We recommend looking at the provided example code to see all of the options available to configure.
+
 ### Publicly accessible methods
 ```cpp
 take_reading()
